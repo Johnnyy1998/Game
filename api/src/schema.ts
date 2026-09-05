@@ -39,3 +39,21 @@ export const GuessResponseSchema = z.object({
   attempts: z.number().int().positive(),
 })
 export type GuessResponse = z.infer<typeof GuessResponseSchema>
+
+export const ErrorCodeSchema = z.enum(['badRequest', 'notFound', 'internalError'])
+export type ErrorCode = z.infer<typeof ErrorCodeSchema>
+
+export const FieldErrorSchema = z.object({
+  field: z.string(),
+  message: z.string(),
+})
+export type FieldError = z.infer<typeof FieldErrorSchema>
+
+export const ErrorResponseSchema = z.object({
+  error: z.object({
+    code: ErrorCodeSchema,
+    message: z.string(),
+    details: z.array(FieldErrorSchema).optional(),
+  }),
+})
+export type ErrorResponse = z.infer<typeof ErrorResponseSchema>
