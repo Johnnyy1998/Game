@@ -11,6 +11,9 @@ export type GetGameContext = GamesTableContext
 /**
  * Items read back are parsed with `GameSchema` rather than cast, so a corrupted
  * row fails loudly instead of producing a wrong answer.
+ *
+ * DynamoDB removes expired items hours after `expiresAt`, so the deadline has to
+ * be enforced on read; the table TTL only keeps the table small.
  */
 export const getGame = async ({
   input: { gameId },
@@ -24,5 +27,9 @@ export const getGame = async ({
 
   if (!Item) throw new NotFoundError(`Game ${gameId} not found`)
 
-  return GameSchema.parse(Item)
+  const game = GameSchema.parse(Item)
+
+  if (game.expiresAt * 1000 <= Date.now()) throw new NotFoundError(`Game ${gameId} has expired`)
+
+  return game
 }

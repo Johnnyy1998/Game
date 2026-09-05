@@ -6,14 +6,18 @@ import type { GamesTableContext } from './games.context'
 
 export const gameId = '3f1a9b7e-2c4d-4f6a-9b8c-5d7e1a2b3c4d'
 
+const nowInSeconds = () => Math.floor(Date.now() / 1000)
+
 export const activeGame: Game = {
   gameId,
   secretNumber: 42,
   status: 'active',
   attempts: 0,
   createdAt: '2026-01-01T00:00:00.000Z',
-  expiresAt: 1_767_225_600,
+  expiresAt: nowInSeconds() + 600,
 }
+
+export const expiredGame: Game = { ...activeGame, expiresAt: nowInSeconds() - 1 }
 
 /** Class-level mock: intercepts every document client, including the one in `ctx`. */
 export const gamesTableMock = mockClient(DynamoDBDocumentClient)

@@ -132,7 +132,7 @@ One DynamoDB table, `gameId` as the partition key and no secondary indexes.
 | `status`       | string | `active` or `won`                                 |
 | `attempts`     | number | Incremented atomically on every accepted guess    |
 | `createdAt`    | string | ISO timestamp                                     |
-| `expiresAt`    | number | Epoch seconds, TTL attribute, 24 hours by default |
+| `expiresAt`    | number | Epoch seconds, TTL attribute, 10 minutes by default |
 
 `api/src/games/` is the only place that talks to DynamoDB. It follows a context pattern: the
 handler builds a `GamesTableContext` once per cold start with `createGamesTableContext` and passes
@@ -142,6 +142,8 @@ them a mocked document client. Every function lives in its own folder, takes
 
 - `getGame` throws `NotFoundError` for an unknown id and parses the item with `GameSchema` rather
   than casting, so a corrupted row fails loudly instead of producing a wrong answer.
-- `recordAttempt` applies the attempt with a conditional `UpdateItem`
+- DynamoDB removes expired items hours after `expiresAt`, so `getGame` also compares the deadline on
+every read and answers `404` for a game that has run out. The TTL attribute only keeps the table
+small. `recordAttempt` applies the attempt with a conditional `UpdateItem`
   (`attribute_exists(gameId) AND status = 'active'`) and returns `undefined` when the game is gone
   or already finished, so two clients guessing the winning number at the same time cannot both win.

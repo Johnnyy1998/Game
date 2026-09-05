@@ -4,7 +4,7 @@ export const MIN_SECRET = 1
 export const MAX_SECRET = 100
 
 /** Fallback when the handler passes no TTL; infra overrides it per stage. */
-export const DEFAULT_GAME_TTL_SECONDS = 86_400
+export const DEFAULT_GAME_TTL_SECONDS = 600
 
 const GameStatusSchema = z.enum(['active', 'won'])
 export type GameStatus = z.infer<typeof GameStatusSchema>
