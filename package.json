@@ -10,6 +10,8 @@
     "dev": "pnpm --filter web dev",
     "build": "pnpm --filter web build",
     "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "verify": "pnpm lint && pnpm typecheck && pnpm test",
     "lint": "biome check .",
     "lint:fix": "biome check --write ."
   },
