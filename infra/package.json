@@ -5,10 +5,7 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "synth": "cdk synth",
-    "deploy": "cdk deploy",
-    "destroy": "cdk destroy",
-    "diff": "cdk diff"
+    "synth": "cdk synth"
   },
   "dependencies": {
     "@game/api": "workspace:*",
