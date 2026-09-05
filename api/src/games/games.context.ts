@@ -19,7 +19,14 @@ export const GamesTableConfigSchema = z.object({
     .default(DEFAULT_GAME_TTL_SECONDS)
     .pipe(z.coerce.number().int().positive()),
 })
-export type GamesTableConfig = z.input<typeof GamesTableConfigSchema>
+/**
+ * Shaped for raw environment values, so a handler can pass `process.env` entries
+ * straight in and let the schema reject what is missing or empty.
+ */
+export interface GamesTableConfig {
+  readonly gamesTableName: string | undefined
+  readonly gameTtlSeconds?: string | number | undefined
+}
 
 /**
  * Built once per Lambda cold start by the handler and passed down as `ctx`.

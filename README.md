@@ -32,6 +32,34 @@ pnpm verify    # lint, typecheck and every test
 client imports the same Zod schemas the API validates against, so a change to the API shape breaks
 the client at compile time.
 
+## API
+
+### `POST /start-game`
+
+No request body. Responds `201`:
+
+```json
+{
+  "gameId": "3f1a9b7e-2c4d-4f6a-9b8c-5d7e1a2b3c4d",
+  "message": "Game started. Make a guess between 1 and 100."
+}
+```
+
+### `POST /guess`
+
+```json
+{ "gameId": "3f1a9b7e-2c4d-4f6a-9b8c-5d7e1a2b3c4d", "guess": 42 }
+```
+
+Responds `200`:
+
+```json
+{ "message": "Too low. Try again!", "outcome": "tooLow", "attempts": 4 }
+```
+
+`outcome` is one of `tooLow`, `tooHigh`, `correct`. A guess against a game that no longer exists or
+is already finished answers `404`.
+
 ## Error responses
 
 All errors share one shape, and `code` is a closed set: `badRequest`, `notFound` or

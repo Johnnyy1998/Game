@@ -32,7 +32,7 @@
     "enabled": true,
     "rules": {
       "preset": "recommended",
-      "complexity": { "useArrowFunction": "error" },
+      "complexity": { "useArrowFunction": "error", "useLiteralKeys": "off" },
       "correctness": { "noUnusedImports": "error", "noUnusedVariables": "error" },
       "style": {
         "noEnum": "error",
