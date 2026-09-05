@@ -1,3 +1,7 @@
 packages:
   - api
+  - infra
   - web
+
+onlyBuiltDependencies:
+  - esbuild

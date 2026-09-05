@@ -1,8 +1,7 @@
 import { DynamoDB } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb'
 import { z } from 'zod'
-
-export const DEFAULT_GAME_TTL_SECONDS = 86_400
+import { DEFAULT_GAME_TTL_SECONDS } from '../schema'
 
 export interface GamesTableContext {
   readonly gamesTable: DynamoDBDocument

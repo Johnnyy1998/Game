@@ -1,19 +1,23 @@
 # Game
 
-Serverless "guess the number" game. A pnpm workspace holding the Vite web client, the API contract,
-and later the handlers and AWS CDK infrastructure that run it.
+Serverless "guess the number" game on AWS. The API runs on API Gateway, Lambda and DynamoDB, the web
+client is a Vite app served from S3 through CloudFront, and everything is defined in AWS CDK
+(TypeScript). Serving the API under the same CloudFront domain removes CORS from the browser
+entirely and keeps one hostname for the whole app.
 
 ## Repository layout
 
 | Path   | Contents                                                        |
 | ------ | --------------------------------------------------------------- |
 | `api/` | Zod schemas, core errors, HTTP mapping and the games domain      |
+| `infra/` | CDK app and stack, plus assertions tests over the template     |
 | `web/` | Vite, React and Tailwind client                                 |
 
 ## Prerequisites
 
 - Node.js 22 (`.nvmrc` is provided)
 - pnpm 10
+- AWS credentials for the target account, and `cdk bootstrap` run once per account and region
 
 ## Commands
 
@@ -26,7 +30,31 @@ pnpm lint:fix  # apply Biome fixes
 pnpm typecheck # TypeScript across the workspace
 pnpm test      # unit tests
 pnpm verify    # lint, typecheck and every test
+pnpm synth     # build, then synthesise the CloudFormation template
+pnpm deploy    # build, then deploy the stack
+pnpm destroy   # tear the stack down
 ```
+
+## Stages
+
+The stage defaults to `dev` and comes from CDK context, so several stages fit in one account:
+
+```bash
+pnpm --filter @game/infra exec cdk deploy -c stage=prod
+```
+
+| | `dev` and other stages | `prod` |
+| --- | --- | --- |
+| Stack id | `<stage>-gameStack` | `prod-gameStack` |
+| Table and bucket | `DESTROY`, objects auto deleted | `RETAIN`, deletion protection on |
+| Log retention | 1 week | 3 months |
+| `POWERTOOLS_LOG_LEVEL` | `INFO` (`WARN` on `staging`) | `WARN` |
+
+Every resource is tagged `project=game` and `stage=<stage>`.
+
+`pnpm synth` and `pnpm deploy` build `web/dist` first and fail with a clear message if it is
+missing, because the stack publishes it to S3. Deploying prints three outputs: `siteUrl` (open this
+to play), `apiUrl` (the direct API Gateway stage) and `tableName`.
 
 `api/src/schema.ts` is the shared contract and the entry point of the `@game/api` package. The web
 client imports the same Zod schemas the API validates against, so a change to the API shape breaks

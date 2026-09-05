@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { createGamesTableContext, DEFAULT_GAME_TTL_SECONDS } from './games.context'
+import { DEFAULT_GAME_TTL_SECONDS } from '../schema'
+import { createGamesTableContext } from './games.context'
 
 describe('createGamesTableContext', () => {
   it('defaults the TTL and coerces a string from the environment', () => {

@@ -1,0 +1,11 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023"],
+    "types": ["node"],
+    "esModuleInterop": true,
+    // aws-cdk-lib interfaces are not compatible with exact optional properties.
+    "exactOptionalPropertyTypes": false
+  },
+  "include": ["bin", "lib", "vitest.config.mts"]
+}

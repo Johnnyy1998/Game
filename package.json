@@ -9,6 +9,9 @@
   "scripts": {
     "dev": "pnpm --filter web dev",
     "build": "pnpm --filter web build",
+    "synth": "pnpm build && pnpm --filter infra synth",
+    "deploy": "pnpm build && pnpm --filter infra deploy",
+    "destroy": "pnpm --filter infra destroy",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
     "verify": "pnpm lint && pnpm typecheck && pnpm test",
