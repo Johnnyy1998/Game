@@ -30,6 +30,14 @@ const guessInput = () => screen.getByLabelText('Your guess')
 
 const guessButton = () => screen.getByRole('button', { name: 'Guess' })
 
+const startButton = () => screen.getByRole('button', { name: 'Start game' })
+
+// Every test that plays needs a game, and starting one is now an explicit click.
+const startGame = async () => {
+  await userEvent.click(startButton())
+  await screen.findByText(startedGame.message)
+}
+
 beforeEach(() => {
   vi.stubGlobal(
     'fetch',
@@ -44,10 +52,27 @@ afterEach(() => {
 })
 
 describe('App', () => {
-  it('starts a game on mount and enables the form', async () => {
+  it('does not touch the api until the game is started', async () => {
+    const fetchMock = vi.fn(async () => jsonResponse(201, startedGame))
+
+    vi.stubGlobal('fetch', fetchMock)
     render(<App />)
 
+    expect(await screen.findByText('Press start when you are ready.')).toBeDefined()
+    expect(screen.queryByLabelText('Your guess')).toBeNull()
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('starts a game on the button press and reveals the form', async () => {
+    const fetchMock = vi.fn(async () => jsonResponse(201, startedGame))
+
+    vi.stubGlobal('fetch', fetchMock)
+    render(<App />)
+
+    await userEvent.click(startButton())
+
     expect(await screen.findByText(startedGame.message)).toBeDefined()
+    expect(fetchMock).toHaveBeenCalledTimes(1)
     await waitFor(() => expect(guessInput()).not.toHaveProperty('disabled', true))
   })
 
@@ -57,7 +82,7 @@ describe('App', () => {
     )
 
     render(<App />)
-    await screen.findByText(startedGame.message)
+    await startGame()
 
     await userEvent.type(guessInput(), '10')
     await userEvent.click(guessButton())
@@ -74,7 +99,7 @@ describe('App', () => {
     const fetchMock = stubFetch(jsonResponse(200, {}))
 
     render(<App />)
-    await screen.findByText(startedGame.message)
+    await startGame()
 
     await userEvent.type(guessInput(), '101')
     await userEvent.click(guessButton())
@@ -83,7 +108,7 @@ describe('App', () => {
     expect(fetchMock.mock.calls.some(([input]) => String(input).endsWith('/guess'))).toBe(false)
   })
 
-  it('locks the form and keeps the win message after a correct guess', async () => {
+  it('locks the form and offers a new game after a correct guess', async () => {
     stubFetch(
       jsonResponse(200, {
         message: "Correct! You've guessed the number.",
@@ -93,13 +118,14 @@ describe('App', () => {
     )
 
     render(<App />)
-    await screen.findByText(startedGame.message)
+    await startGame()
 
     await userEvent.type(guessInput(), '42')
     await userEvent.click(guessButton())
 
     expect(await screen.findByText("Correct! You've guessed the number.")).toBeDefined()
     await waitFor(() => expect(guessInput()).toHaveProperty('disabled', true))
+    expect(screen.getByRole('button', { name: 'New game' })).toBeDefined()
   })
 
   it('surfaces the api error message', async () => {
@@ -108,7 +134,7 @@ describe('App', () => {
     )
 
     render(<App />)
-    await screen.findByText(startedGame.message)
+    await startGame()
 
     await userEvent.type(guessInput(), '50')
     await userEvent.click(guessButton())

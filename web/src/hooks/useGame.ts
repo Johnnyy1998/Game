@@ -1,5 +1,5 @@
 import type { GuessOutcome } from '@game/api'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { startGame, submitGuess } from '../gameClient'
 
 export type FeedbackTone = 'info' | 'hint' | 'success' | 'error'
@@ -15,45 +15,44 @@ const toneByOutcome: Record<GuessOutcome, FeedbackTone> = {
   correct: 'success',
 }
 
+const idleFeedback: Feedback = { tone: 'info', text: 'Press start when you are ready.' }
+
+const startingFeedback: Feedback = { tone: 'info', text: 'Starting a game…' }
+
 const unexpectedErrorFeedback: Feedback = {
   tone: 'error',
   text: 'Something went wrong. Please try again.',
 }
 
-// Owns one game round. Mount the consumer with a fresh `key` to start a new round.
+// Owns one game round. Nothing is requested until `beginGame` is called, so opening
+// the page does not create a game on the server.
 export const useGame = () => {
   const [gameId, setGameId] = useState<string>()
-  const [feedback, setFeedback] = useState<Feedback>({ tone: 'info', text: 'Starting a game…' })
+  const [feedback, setFeedback] = useState<Feedback>(idleFeedback)
   const [attempts, setAttempts] = useState(0)
-  const [isStarting, setIsStarting] = useState(true)
+  const [isStarting, setIsStarting] = useState(false)
   const [hasWon, setHasWon] = useState(false)
 
-  useEffect(() => {
-    let isMounted = true
+  const beginGame = useCallback(async () => {
+    setIsStarting(true)
+    setGameId(undefined)
+    setAttempts(0)
+    setHasWon(false)
+    setFeedback(startingFeedback)
 
-    const beginGame = async () => {
-      try {
-        const result = await startGame()
+    try {
+      const result = await startGame()
 
-        if (!isMounted) return
-
-        if (result.isOk) {
-          setGameId(result.data.gameId)
-          setFeedback({ tone: 'info', text: result.data.message })
-        } else {
-          setFeedback({ tone: 'error', text: result.message })
-        }
-      } catch {
-        if (isMounted) setFeedback(unexpectedErrorFeedback)
-      } finally {
-        if (isMounted) setIsStarting(false)
+      if (result.isOk) {
+        setGameId(result.data.gameId)
+        setFeedback({ tone: 'info', text: result.data.message })
+      } else {
+        setFeedback({ tone: 'error', text: result.message })
       }
-    }
-
-    void beginGame()
-
-    return () => {
-      isMounted = false
+    } catch {
+      setFeedback(unexpectedErrorFeedback)
+    } finally {
+      setIsStarting(false)
     }
   }, [])
 
@@ -87,6 +86,7 @@ export const useGame = () => {
     hasWon,
     isStarting,
     isReady: gameId !== undefined,
+    beginGame,
     makeGuess,
   }
 }

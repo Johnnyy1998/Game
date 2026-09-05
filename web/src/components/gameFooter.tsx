@@ -1,10 +1,11 @@
 type GameFooterProps = {
   attempts: number
   isBusy: boolean
+  hasStarted: boolean
   onNewGame: () => void
 }
 
-export const GameFooter = ({ attempts, isBusy, onNewGame }: GameFooterProps) => (
+export const GameFooter = ({ attempts, isBusy, hasStarted, onNewGame }: GameFooterProps) => (
   <footer className="mt-5 flex items-center justify-between text-sm text-slate-500 dark:text-slate-400">
     <span>Attempts: {attempts}</span>
     <button
@@ -13,7 +14,7 @@ export const GameFooter = ({ attempts, isBusy, onNewGame }: GameFooterProps) => 
       onClick={onNewGame}
       disabled={isBusy}
     >
-      New game
+      {hasStarted ? 'New game' : 'Start game'}
     </button>
   </footer>
 )
