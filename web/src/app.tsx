@@ -1,5 +1,11 @@
-export const App = () => (
-  <main className="rounded-2xl bg-white p-8 shadow-sm dark:bg-slate-900">
-    <h1 className="font-semibold text-2xl">Game</h1>
-  </main>
-)
+import { useCallback, useState } from 'react'
+import { GameBoard } from './components/gameBoard'
+
+// Bumping the round remounts the board, which resets all game state and starts a new game.
+export const App = () => {
+  const [round, setRound] = useState(0)
+
+  const startNewGame = useCallback(() => setRound((current) => current + 1), [])
+
+  return <GameBoard key={round} onNewGame={startNewGame} />
+}

@@ -35,6 +35,18 @@ pnpm deploy    # build, then deploy the stack
 pnpm destroy   # tear the stack down
 ```
 
+## Local development
+
+The Lambdas are not emulated. Deploy once, then point the Vite dev proxy at the deployed stage:
+
+```bash
+cp web/.env.example web/.env.local   # set VITE_API_PROXY_TARGET to the apiUrl host
+pnpm dev
+```
+
+The dev server proxies `/api/*` to API Gateway, so the client code path is identical in dev and in
+production.
+
 ## Stages
 
 The stage defaults to `dev` and comes from CDK context, so several stages fit in one account:
