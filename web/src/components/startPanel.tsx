@@ -12,7 +12,7 @@ export const StartPanel = ({ feedback, isStarting, onStart }: StartPanelProps) =
   <div className="flex flex-1 flex-col items-center justify-center gap-7 text-center">
     <div className="grid gap-2">
       <p className="text-balance font-medium text-lg">
-        I picked a number between {MIN_SECRET} and {MAX_SECRET}.
+        Guess a number between {MIN_SECRET} and {MAX_SECRET}.
       </p>
       <p
         className={`text-sm ${

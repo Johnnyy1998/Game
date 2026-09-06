@@ -13,7 +13,7 @@ const classNameByTone: Record<FeedbackTone, string> = {
 
 export const FeedbackBanner = ({ feedback }: FeedbackBannerProps) => (
   <p
-    className={`mt-5 rounded-xl border px-4 py-3 text-[0.95rem] ${classNameByTone[feedback.tone]}`}
+    className={`mt-5 flex min-h-18 items-center rounded-xl border px-4 py-3 text-[0.95rem] ${classNameByTone[feedback.tone]}`}
     role="status"
   >
     {feedback.text}

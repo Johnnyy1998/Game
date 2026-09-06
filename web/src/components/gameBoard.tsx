@@ -17,8 +17,7 @@ export const GameBoard = () => {
   }
 
   return (
-    // The minimum height keeps the card the same size before and during a game.
-    <main className="flex min-h-100 w-full max-w-md flex-col rounded-2xl border border-slate-200 bg-white p-7 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <main className="flex min-h-112 w-112 max-w-full flex-col rounded-2xl border border-slate-200 bg-white p-7 shadow-sm dark:border-slate-800 dark:bg-slate-900">
       <h1 className="font-bold text-2xl tracking-tight">Game</h1>
 
       {isReady ? (

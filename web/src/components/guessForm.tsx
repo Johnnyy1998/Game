@@ -25,11 +25,9 @@ export const GuessFormFields = ({ form, isDisabled }: GuessFormProps) => (
         onChange={form.handleChange}
         disabled={isDisabled}
       />
-      {form.errors.guess && (
-        <p className="text-red-600 text-xs dark:text-red-400" role="alert">
-          {form.errors.guess}
-        </p>
-      )}
+      <p className="min-h-4 text-red-600 text-xs dark:text-red-400" role="alert">
+        {form.errors.guess}
+      </p>
     </div>
     <button className={primaryButtonClassName} type="submit" disabled={isDisabled}>
       {form.isSubmitting ? 'Working…' : 'Guess'}
