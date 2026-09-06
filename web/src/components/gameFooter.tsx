@@ -1,20 +1,23 @@
+import { secondaryButtonClassName } from './styles'
+
 type GameFooterProps = {
   attempts: number
   isBusy: boolean
-  hasStarted: boolean
   onNewGame: () => void
 }
 
-export const GameFooter = ({ attempts, isBusy, hasStarted, onNewGame }: GameFooterProps) => (
-  <footer className="mt-5 flex items-center justify-between text-sm text-slate-500 dark:text-slate-400">
-    <span>Attempts: {attempts}</span>
+export const GameFooter = ({ attempts, isBusy, onNewGame }: GameFooterProps) => (
+  <footer className="mt-auto flex items-center justify-between pt-5 text-slate-500 text-sm dark:text-slate-400">
+    <span>
+      Attempts: <span className="font-medium text-slate-700 dark:text-slate-200">{attempts}</span>
+    </span>
     <button
-      className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-indigo-600 transition hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 disabled:cursor-not-allowed disabled:opacity-55 dark:border-slate-700 dark:text-indigo-300 dark:hover:bg-slate-800"
+      className={secondaryButtonClassName}
       type="button"
       onClick={onNewGame}
       disabled={isBusy}
     >
-      {hasStarted ? 'New game' : 'Start game'}
+      New game
     </button>
   </footer>
 )

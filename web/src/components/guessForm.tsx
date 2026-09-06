@@ -1,40 +1,37 @@
 import type { GuessForm } from '../hooks/useGuessForm'
+import { focusRingClassName, primaryButtonClassName } from './styles'
 
 type GuessFormProps = {
   form: GuessForm
   isDisabled: boolean
 }
 
-const focusRingClassName =
-  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500'
-
 export const GuessFormFields = ({ form, isDisabled }: GuessFormProps) => (
   // noValidate hands validation to Formik and Zod instead of the browser.
-  <form className="mt-5 grid gap-2" noValidate onSubmit={form.handleSubmit}>
-    <label className="text-xs text-slate-500 dark:text-slate-400" htmlFor="guess">
-      Your guess
-    </label>
-    <input
-      id="guess"
-      name="guess"
-      className={`rounded-lg border border-slate-300 bg-transparent px-3 py-2.5 dark:border-slate-700 ${focusRingClassName}`}
-      type="text"
-      inputMode="numeric"
-      autoComplete="off"
-      value={form.values.guess}
-      onChange={form.handleChange}
-      disabled={isDisabled}
-    />
-    {form.errors.guess && (
-      <p className="text-xs text-red-600 dark:text-red-400" role="alert">
-        {form.errors.guess}
-      </p>
-    )}
-    <button
-      className={`rounded-lg bg-indigo-600 px-4 py-2.5 font-semibold text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-55 ${focusRingClassName}`}
-      type="submit"
-      disabled={isDisabled}
-    >
+  <form className="mt-5 grid gap-4" noValidate onSubmit={form.handleSubmit}>
+    {/* The label and its error belong to the field, so they sit closer to it than the button. */}
+    <div className="grid gap-1.5">
+      <label className="text-slate-500 text-xs dark:text-slate-400" htmlFor="guess">
+        Your guess
+      </label>
+      <input
+        id="guess"
+        name="guess"
+        className={`rounded-lg border border-slate-300 bg-transparent px-3 py-2.5 text-center font-medium text-lg tabular-nums dark:border-slate-700 ${focusRingClassName}`}
+        type="text"
+        inputMode="numeric"
+        autoComplete="off"
+        value={form.values.guess}
+        onChange={form.handleChange}
+        disabled={isDisabled}
+      />
+      {form.errors.guess && (
+        <p className="text-red-600 text-xs dark:text-red-400" role="alert">
+          {form.errors.guess}
+        </p>
+      )}
+    </div>
+    <button className={primaryButtonClassName} type="submit" disabled={isDisabled}>
       {form.isSubmitting ? 'Working…' : 'Guess'}
     </button>
   </form>
