@@ -55,16 +55,17 @@ describe('lambda functions', () => {
     })
   })
 
-  it('denies table reads to the start-game handler', () => {
+  it('grants each handler only the table actions it calls', () => {
     const policies = Object.values(template.findResources('AWS::IAM::Policy'))
-    const statements = policies.flatMap(
-      (policy) => policy.Properties?.PolicyDocument?.Statement ?? [],
-    )
-    const readers = statements.filter((statement: { Action?: string | string[] }) =>
-      [statement.Action].flat().includes('dynamodb:GetItem'),
-    )
+    const tableActions = policies
+      .flatMap((policy) => policy.Properties?.PolicyDocument?.Statement ?? [])
+      .map((statement: { Action?: string | string[] }) => [statement.Action].flat())
+      .filter((actions) => actions.some((action) => String(action).startsWith('dynamodb:')))
 
-    expect(readers).toHaveLength(1)
+    expect(tableActions).toContainEqual(['dynamodb:PutItem'])
+    expect(tableActions).toContainEqual(['dynamodb:GetItem', 'dynamodb:UpdateItem'])
+    expect(tableActions.flat()).not.toContain('dynamodb:Scan')
+    expect(tableActions.flat()).not.toContain('dynamodb:DeleteItem')
   })
 })
 

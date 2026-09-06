@@ -87,8 +87,10 @@ const createApi = (scope: Construct, table: dynamodb.ITableV2, stage: string) =>
   const startGame = createHandler(scope, 'StartGameFunction', 'startGame.ts', table, stage)
   const guess = createHandler(scope, 'GuessFunction', 'guess.ts', table, stage)
 
-  table.grantWriteData(startGame)
-  table.grantReadWriteData(guess)
+  // Exactly the actions each handler calls, rather than the wider grantWriteData
+  // and grantReadWriteData, which also allow Scan, Query and DeleteItem.
+  table.grant(startGame, 'dynamodb:PutItem')
+  table.grant(guess, 'dynamodb:GetItem', 'dynamodb:UpdateItem')
 
   const api = new apigateway.RestApi(scope, 'GameApi', {
     restApiName: `${stage}-game`,
