@@ -1,0 +1,43 @@
+name: Unit & Compilation tests
+run-name: Unit & Compilation tests
+
+on:
+  workflow_dispatch:
+  workflow_call:
+  push:
+
+permissions:
+  contents: read # This is required for actions/checkout
+
+concurrency:
+  # A superseded branch run is worth nothing, so cancel it. Never keyed on a
+  # deploy, which calls this workflow and must not cancel itself.
+  group: tests-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Lint, typecheck, tests and synth
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js and pnpm
+        uses: ./.github/actions/setup
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Type check
+        run: pnpm typecheck
+
+      - name: Unit tests
+        run: pnpm test
+
+      # Proves the stack still synthesises and both handlers still bundle, which
+      # the unit tests do not cover. Needs no credentials: without them the stack
+      # renders as aws://unknown-account/eu-central-1.
+      - name: Compilation check
+        run: pnpm synth

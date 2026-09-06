@@ -1,0 +1,61 @@
+name: Deploy
+run-name: Deploy ${{ inputs.stage }} by @${{ github.triggering_actor }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: Stage to deploy
+        type: choice
+        options: [dev, prod]
+        default: dev
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read # This is required for actions/checkout
+
+concurrency:
+  # Never cancel a running deploy; a half applied CloudFormation update is worse
+  # than waiting for the previous one to finish.
+  group: deploy-${{ inputs.stage }}
+  cancel-in-progress: false
+
+jobs:
+  # The same workflow that guards every push, so a manual deploy cannot skip it.
+  tests:
+    name: Unit & compilation tests
+    uses: ./.github/workflows/tests.yaml
+
+  deploy:
+    name: Deploy ${{ inputs.stage }}
+    needs: tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Add required reviewers to this GitHub environment to gate prod behind an
+    # approval. Without protection rules it simply records the deployment.
+    environment: ${{ inputs.stage }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js and pnpm
+        uses: ./.github/actions/setup
+
+      # Short lived credentials from the OIDC provider; no access key is stored.
+      # The role arn is a secret so no account id lives in the repository.
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: eu-central-1
+          role-session-name: game-deploy-${{ inputs.stage }}
+
+      # The stack publishes web/dist to S3, so the client is built first.
+      - name: Build web client
+        run: pnpm build
+
+      - name: Deploy
+        run: >
+          pnpm --filter @game/infra exec cdk deploy
+          --require-approval never
+          -c stage=${{ inputs.stage }}
