@@ -48,6 +48,23 @@ build `web/dist` before synthesising, and the stack fails with a clear message i
 because it publishes that directory to S3. A deploy prints three outputs: `siteUrl` (open this to
 play), `apiUrl` (the direct API Gateway stage) and `tableName`.
 
+## CI
+
+`.github/workflows/tests.yaml` runs on every push: lint, typecheck, unit tests, then `pnpm synth`.
+The synth step needs no credentials and catches what the unit tests cannot, that the stack still
+renders and both handlers still bundle.
+
+`.github/workflows/deploy.yaml` is manual only, through **Actions → Deploy → Run workflow**, where
+the stage is chosen. Its first job calls `tests.yaml`, so a deploy cannot skip the checks that guard
+a push, and the deploy job runs in a GitHub environment named after the stage. Add required
+reviewers to the `prod` environment to gate production behind an approval.
+
+Deploying authenticates with short lived credentials from GitHub's OIDC provider rather than a
+stored access key. It needs an IAM identity provider for `token.actions.githubusercontent.com`, a
+role trusting it for this repository whose only permission is `sts:AssumeRole` on the
+`cdk-hnb659fds-*` roles that `cdk bootstrap` created, and a repository secret
+`AWS_DEPLOY_ROLE_ARN` holding that role's arn.
+
 ## Local development
 
 The Lambdas are not emulated. Deploy once, then point the Vite dev proxy at the deployed stage:
